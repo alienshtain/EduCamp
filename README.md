@@ -3,81 +3,117 @@
 <div align="center">
 
 ![License](https://img.shields.io/badge/License-Personal_Use_Only-orange.svg)
-![Status](https://img.shields.io/badge/Status-Updated-brightgreen.svg)
-![Language](https://img.shields.io/badge/Language-Arabic_%7C_English-blue.svg)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen.svg)
+![Languages](https://img.shields.io/badge/Languages-Arabic_%7C_English-blue.svg)
 
-[**🌐 جرب التطبيق الآن | Live Demo**](https://osmyt.github.io/)
+[**🌐 جرب التطبيق الآن | Live Demo**](https://osmyt.github.io/EduCamp/)
 
-[English Description](#english) | [الوصف بالعربية](#arabic)
+[الوصف بالعربية](#arabic) | [English Description](#english)
 
 </div>
 
 ---
 
 <a name="arabic"></a>
-## 📖 عن المشروع (EduCamp)
-**EduCamp** هي منصة متكاملة وسلسة مُصممة لمساعدة الطلاب والمستقلين على تنظيم جدولهم الدراسي، إدارة المهام اليومية، وتتبع مستوى الإنتاجية والتركيز باستخدام تقنية البومودورو مع مشغل صوتي مدمج لتلاوات القرآن الكريم.
+## العربية
+
+### 📖 عن المشروع
+**EduCamp** هي منصة متكاملة وسلسة مُصممة لمساعدة الطلاب والمستقلين على تنظيم جدولهم الدراسي، إدارة المهام اليومية، وتتبع مستوى الإنتاجية والتركيز باستخدام تقنية البومودورو المدمجة مع مشغل صوتي لتلاوات القرآن الكريم.
+
+### ✨ الميزات الرئيسية
+
+* **📝 إدارة المواد والمهام:**
+  * إضافة مواد دراسية وتخصيص ألوان مميزة لكل مادة.
+  * إضافة مهام وتحديد تاريخ الإنجاز وتفاصيل العمل.
+  * إرفاق روابط يوتيوب متعددة لشرح وتوضيح المهام.
+  * تدوين ملاحظات سريعة ومباشرة لكل مهمة.
+
+* **📊 تتبع التقدم والإحصائيات:**
+  * **متابعة التقدم الكلي:** نسبة مئوية شاملة لجميع المهام المنجزة.
+  * **متابعة التقدم بالمادة:** أشرطة تفاعلية توضح نسبة الإنجاز في كل مادة.
+  * **تنسيق زمني للمهام:** تصنيف تلقائي إلى (مهام اليوم) و(مهام الأيام القادمة).
+
+* **⏱️ نظام البومودورو والتركيز الصوتي:**
+  * **توقيت قابل للتعديل:** تخصيص دقائق الدراسة والاستراحة حسب رغبتك.
+  * **مشغل قرآن كريم:** الاستماع لتلاوات قرآنية مختارة لقراء متعددين أثناء الدراسة.
+  * **رفع تلاوات مخصصة:** إمكانية رفع ملف صوتي من جهازك أو إضافة رابط خارجي.
+  * **مزامنة تلقائية:** إيقاف تشغيل الصوت تلقائياً عند إيقاف المؤقت واستئنافه مع بدء الجلسة.
+  * **إشعارات المتصفح:** تنبيهات فورية عند انتهاء جلسات الدراسة أو الاستراحة.
+
+* **🔄 التصدير والمشاركة:**
+  * تصدير المهام والجداول بصيغتي `CSV` (إكسل) و `JSON`.
+  * استيراد البيانات بسهولة لنقلها بين أجهزتك أو مشاركتها مع زملائك.
 
 ---
 
-### ✨ الميزات الرئيسية (Key Features)
+### 📸 معاينة الواجهات المقترحة
 
-#### 📝 1. إدارة المواد والمهام
-* **تخصيص المواد:** إضافة مواد دراسية جديدة مع تحديد ألوان مميزة لكل مادة.
-* **إدارة كاملة للمهام:** إضافة مهام يومية وتحديد تاريخ إنجازها وتفاصيلها.
-* **إرفاق الشروحات:** إضافة روابط يوتيوب متعددة مع عناوين مخصصة لشرح كل مهمة.
-* **الملاحظات المباشرة:** كتابة ملاحظات وتدوينات سريعة داخل كل مهمة.
+| لقطة الشاشة | الوصف |
+| :--- | :--- |
+| `![الواجهة الرئيسية](./screenshots/dashboard.png)` | **الواجهة الرئيسية:** قائمة المهام اليومية والشريط الجانبي للمواد. |
+| `![مؤقت البومودورو](./screenshots/pomodoro.png)` | **مؤقت البومودورو:** شكل المؤقت ومشغل الصوتيات والقراء. |
+| `![تفاصيل المهمة](./screenshots/task-modal.png)` | **إضافة مهمة:** الخانات الخاصة بروابط الشروحات والملاحظات. |
+| `![نسب الإنجاز](./screenshots/progress.png)` | **الإحصائيات:** أشرطة تقدم المواد والنسبة الإجمالية. |
 
-#### 📊 2. تتبع التقدم والإحصائيات
-* **متابعة التقدم الكلي:** نسبة مئوية توضح مدى إنجاز جميع المهام.
-* **متابعة التقدم بالمادة:** تتبع نسبة الإنجاز لكل مادة على حدة عبر أشرطة تفاعلية.
-* **تنسيق زمني للمهام:** تصنيف كروت المهام تلقائياً إلى (مهام اليوم) و(مهام الأيام القادمة).
+---
 
-#### ⏱️ 3. نظام البومودورو والتركيز الصوتي
-* **مؤقت بومودورو قابل للتخصيص:** إمكانية ضبط دقائق الدراسة والاستراحة حسب رغبتك.
-* **مشغل صوتيات للتركيز:** الاستماع لتلاوات قرآنية مختارة لعدد من القراء أثناء جلسات الدراسة.
-* **رفع تلاوة مخصصة:** إمكانية رفع ملف صوتي أو تلاوة من جهازك الخاص أو إضافة رابط خارجي.
-* **المزامنة التلقائية:** إيقاف تشغيل الصوت تلقائياً عند إيقاف المؤقت واستئنافه مع بدء الجلسة.
-* **التحكم بالصوت:** التحكم بالصوت وشريط التقديم والترجيع للصوت بكل سهولة.
-* **إشعارات المتصفح:** تنبيهات فورية عند انتهاء جلسة العمل أو الاستراحة.
+### 🔗 التواصل والمطور
+* **الموقع الشخصي والروابط:** [osmyt.github.io](https://osmyt.github.io/)
 
-#### 🔄 4. التصدير والمشاركة
-* **تصدير المهام:** تصدير المهام والجداول بصيغتي `CSV` (ملف إكسل) و `JSON`.
-* **استيراد المهام:** نقل البيانات بسهولة بين أجهزتك أو مشاركة خطتك الدراسية مع أصدقائك.
+---
+
+### 📄 الرخصة
+هذا المشروع مرخص تحت رخصة الاستخدام الشخصي فقط (**Personal Use Only / Non-Commercial**). يُمنع استخدام هذا العمل لأغراض تجارية.
 
 ---
 
 <a name="english"></a>
-## 📚 About EduCamp
-**EduCamp** is an all-in-one platform designed to help students and freelancers structure their study schedules, track daily tasks, and maintain deep focus using a customized Pomodoro timer integrated with an ambient Audio Player.
+## English
 
-### 🚀 Highlights
-* **Task & Subject Management:** Create color-coded subjects, set task deadlines, embed YouTube tutorials, and keep task-specific notes.
-* **Progress Tracking:** Real-time visual metrics for overall completion and individual subject progress bars.
-* **Custom Pomodoro Timer:** Adjustable work/break intervals synchronized with background Quran recitations or custom audio files.
-* **Data Mobility:** Import & Export tasks via `CSV` or `JSON` to share plans across devices or with peers.
+### 📖 About The Project
+**EduCamp** is a clean, all-in-one productivity platform designed to help students and freelancers structure their study schedules, track daily tasks, and maintain focus using a customized Pomodoro timer integrated with an ambient Audio Player for Quran recitations.
+
+### ✨ Key Features
+
+* **📝 Subject & Task Management:**
+  * Create custom, color-coded subjects.
+  * Set task deadlines, descriptions, and completion states.
+  * Attach multiple YouTube tutorial links with custom titles to any task.
+  * Write direct, editable notes for individual tasks.
+
+* **📊 Progress Tracking & Statistics:**
+  * **Overall Progress:** Real-time completion rate across all registered tasks.
+  * **Subject-wise Progress:** Visual progress bars for each subject.
+  * **Smart Task Sorting:** Automatic categorization into "Today's Tasks" and "Upcoming Tasks".
+
+* **⏱️ Custom Pomodoro & Ambient Audio Player:**
+  * **Flexible Timer:** Adjust study and break durations to match your workflow.
+  * **Quran Recitations:** Built-in ambient player with select reciters.
+  * **Custom Audio Upload:** Upload your own audio files or input external URLs.
+  * **Audio Sync:** Automatic pause/resume synchronization with the Pomodoro state.
+  * **Browser Notifications:** Instant notifications when study or break sessions end.
+
+* **🔄 Data Import & Export:**
+  * Export task lists and plans to `CSV` (Excel) or `JSON` formats.
+  * Import backups easily to sync between devices or share with study partners.
 
 ---
 
-## 📸 معاينة الواجهات المقترحة (Screenshots & Mockups)
+### 📸 UI Screenshots Guide
 
-> **💡 تنبيه:** يُفضل إضافة لقطات شاشة (Screenshots) أو صور متحركة (GIFs) داخل مجلد `/assets` أو `/screenshots` في مستودع المشروع وإدراجها كالتالي:
-
-| لقطة الشاشة | الوصف |
+| Screenshot | Description |
 | :--- | :--- |
-| `![Main Dashboard](./screenshots/dashboard.png)` | **الواجهة الرئيسية:** عرض قائمة المهام، تصنيف مهام اليوم، والشريط الجانبي للمواد. |
-| `![Pomodoro & Audio](./screenshots/pomodoro.png)` | **مؤقت البومودورو ومشغل الصوتيات:** شكل المؤقت أثناء العمل مع خيارات اختيار القارئ وشريط الصوت. |
-| `![Task Modal](./screenshots/task-modal.png)` | **نافذة إضافة مهمة:** توضح خانة إضافة روابط يوتيوب للشرح والتاريخ والملاحظات. |
-| `![Progress Stats](./screenshots/progress.png)` | **نسب الإنجاز:** أشرطة التقدم الملونة لكل مادة والنسبة المئوية الكلية. |
+| `![Main Dashboard](./screenshots/dashboard.png)` | **Main Dashboard:** Task list, daily breakdown, and subject navigation sidebar. |
+| `![Pomodoro Timer](./screenshots/pomodoro.png)` | **Pomodoro Timer:** Timer display and audio player options. |
+| `![Task Details](./screenshots/task-modal.png)` | **Task Modal:** Fields for adding YouTube links, deadlines, and notes. |
+| `![Progress Stats](./screenshots/progress.png)` | **Progress Statistics:** Subject completion bars and overall percentage. |
 
 ---
 
-## 🌐 التواصل والمطور (Connect & Support)
-
-تابعني عبر منصات التواصل والتحديثات القادمة:
-* 🔗 **الموقع الشخصي والروابط:** [osmyt.github.io](https://osmyt.github.io/)
+### 🔗 Connect & Developer
+* **Personal Website & Links:** [osmyt.github.io](https://osmyt.github.io/)
 
 ---
 
-## 📄 License (الرخصة)
-هذا المشروع مرخص تحت رخصة الاستخدام الشخصي فقط (**Non-Commercial / Personal Use Only**). يُمنع استخدام هذا العمل لأغراض تجارية.
+### 📄 License
+This project is licensed under **Personal Use Only (Non-Commercial)**. Commercial use, reproduction, or redistribution for profit is strictly prohibited.
