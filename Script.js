@@ -20,6 +20,7 @@ const AMBIENT_FILES = [
 
 // الحالة العامة للتطبيق
 let appState = {
+    language: 'ar', // اللغة الافتراضية
     subjects: [
         { id: 'physics', name: 'الفيزياء', color: '#8b5cf6' },
         { id: 'chemistry', name: 'الكيمياء', color: '#14b8a6' }
@@ -70,11 +71,79 @@ var currentAmbientSrc = '';
 var completionAudio = null;
 var confirmCallback = null;
 
+// ==========================================
+// وظائف إدارة اللغة
+// ==========================================
+function toggleLanguage() {
+    appState.language = appState.language === 'ar' ? 'en' : 'ar';
+    saveState();
+    applyLanguage();
+}
+
+function applyLanguage() {
+    const lang = appState.language;
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+    // تحديث نصوص العناصر الثابتة في HTML
+    const textElements = document.querySelectorAll('.lang-text');
+    textElements.forEach(el => {
+        if (el.hasAttribute(`data-${lang}`)) {
+            el.innerHTML = el.getAttribute(`data-${lang}`);
+        }
+    });
+
+    // تحديث نصوص صناديق الإدخال (Placeholders)
+    const placeholders = document.querySelectorAll('.lang-placeholder');
+    placeholders.forEach(el => {
+        if (el.hasAttribute(`data-placeholder-${lang}`)) {
+            el.placeholder = el.getAttribute(`data-placeholder-${lang}`);
+        }
+    });
+
+    // تحديث زر اللغة
+    const langBtnText = document.getElementById('lang-btn-text');
+    if(langBtnText) {
+        langBtnText.innerText = lang === 'ar' ? 'English' : 'العربية';
+    }
+
+    // تحديث عنوان الصفحة
+    const titleAr = "مخيم الدراسة | منصة تنظيم وإدارة الدراسة والمهام";
+    const titleEn = "Study Camp | Study & Task Management Platform";
+    const pageTitle = document.getElementById('page-title');
+    if(pageTitle) pageTitle.innerText = lang === 'ar' ? titleAr : titleEn;
+
+    // تحديث نصوص المؤقت
+    const mode = appState.timer.mode;
+    document.getElementById('timer-mode-label').innerText = mode === 'work' ? 
+        (lang === 'ar' ? 'جلسة دراسة' : 'Study Session') : 
+        (lang === 'ar' ? 'استراحة' : 'Break');
+
+    const status = document.getElementById('timer-status-indicator');
+    if(appState.timer.isRunning) {
+        status.innerText = lang === 'ar' ? 'يعمل الآن' : 'Running';
+    } else {
+        status.innerText = lang === 'ar' ? 'متوقف مؤقتاً' : 'Paused';
+    }
+
+    // إعادة تصيير (Render) العناصر المتغيرة بالـ JS
+    populateAudioSelects();
+    renderSubjectsNav();
+    renderTasks();
+}
+
+// ==========================================
+// التخزين المحلي (Local Storage)
+// ==========================================
 function loadState() {
     try {
         const saved = localStorage.getItem('educamp_state_v2');
         if (saved) {
             const parsed = JSON.parse(saved);
+            
+            // تحميل اللغة
+            if (parsed.language) appState.language = parsed.language;
+
             appState.subjects = parsed.subjects || appState.subjects;
             appState.tasks = parsed.tasks || appState.tasks;
 
@@ -82,9 +151,9 @@ function loadState() {
                 if (!t.ytLinks) {
                     t.ytLinks = [];
                     if (t.ytUrls && t.ytUrls.length > 0) {
-                        t.ytLinks = t.ytUrls.map((url, idx) => ({ title: `رابط الشرح ${idx + 1}`, url: url }));
+                        t.ytLinks = t.ytUrls.map((url, idx) => ({ title: (appState.language === 'ar' ? 'رابط الشرح ' : 'Link ') + (idx + 1), url: url }));
                     } else if (t.ytUrl) {
-                        t.ytLinks = [{ title: 'رابط الشرح', url: t.ytUrl }];
+                        t.ytLinks = [{ title: appState.language === 'ar' ? 'رابط الشرح' : 'Tutorial Link', url: t.ytUrl }];
                     }
                 }
             });
@@ -105,6 +174,7 @@ function loadState() {
 function saveState() {
     try {
         const dataToSave = {
+            language: appState.language,
             subjects: appState.subjects,
             tasks: appState.tasks,
             timerSettings: {
@@ -121,15 +191,19 @@ function saveState() {
     }
 }
 
+// ==========================================
+// إعدادات الصوت
+// ==========================================
 function populateAudioSelects() {
     const ambientSelect = document.getElementById('ambient-sound-select');
+    const isAr = appState.language === 'ar';
 
     if (ambientSelect) {
-        ambientSelect.innerHTML = '<option value="none">بدون صوت</option>';
+        ambientSelect.innerHTML = `<option value="none">${isAr ? 'بدون صوت' : 'No Sound'}</option>`;
         AMBIENT_FILES.forEach(item => {
             ambientSelect.innerHTML += `<option value="./sounds/ambient/${item.filename}">${item.name}</option>`;
         });
-        ambientSelect.innerHTML += '<option value="custom">ملف خاص / رابط خارجي...</option>';
+        ambientSelect.innerHTML += `<option value="custom">${isAr ? 'ملف خاص / رابط خارجي...' : 'Custom File / External Link...'}</option>`;
         ambientSelect.value = appState.timer.ambientSoundType || 'none';
     }
 
@@ -221,7 +295,7 @@ function triggerBrowserNotification(title, body) {
             new Notification(title, {
                 body: body,
                 icon: './images/graduation-cap-solid.png',
-                dir: 'rtl'
+                dir: appState.language === 'ar' ? 'rtl' : 'ltr'
             });
         } catch (e) {
             console.error("خطأ في إرسال الإشعار:", e);
@@ -347,11 +421,15 @@ function testSelectedSounds() {
     }
 }
 
+// ==========================================
+// وظائف المؤقت
+// ==========================================
 function setTimerMode(mode) {
     appState.timer.mode = mode;
+    const isAr = appState.language === 'ar';
     document.getElementById('mode-work').classList.toggle('active', mode === 'work');
     document.getElementById('mode-break').classList.toggle('active', mode === 'break');
-    document.getElementById('timer-mode-label').innerText = mode === 'work' ? 'جلسة دراسة' : 'استراحة';
+    document.getElementById('timer-mode-label').innerText = mode === 'work' ? (isAr ? 'جلسة دراسة' : 'Study Session') : (isAr ? 'استراحة' : 'Break');
     
     pauseTimer();
     appState.timer.secondsLeft = (mode === 'work' ? appState.timer.workMinutes : appState.timer.breakMinutes) * 60;
@@ -385,12 +463,13 @@ function startTimer() {
     requestNotificationPermission();
 
     appState.timer.isRunning = true;
+    const isAr = appState.language === 'ar';
 
     const icon = document.getElementById('pomo-icon');
     icon.className = 'fa-solid fa-pause';
 
     const status = document.getElementById('timer-status-indicator');
-    status.innerText = 'يعمل الآن';
+    status.innerText = isAr ? 'يعمل الآن' : 'Running';
     status.classList.remove('paused');
 
     startAmbientSound();
@@ -403,10 +482,16 @@ function startTimer() {
             pauseTimer();
 
             if (appState.timer.mode === 'work') {
-                triggerBrowserNotification('انتهت جلسة الدراسة! 🎉', 'أحسنت إنجاز هذه الجلسة. حان وقت أخذ استراحة مستحقة.');
+                triggerBrowserNotification(
+                    isAr ? 'انتهت جلسة الدراسة! 🎉' : 'Study session ended! 🎉', 
+                    isAr ? 'أحسنت إنجاز هذه الجلسة. حان وقت أخذ استراحة مستحقة.' : 'Well done! Time for a well-deserved break.'
+                );
                 setTimerMode('break');
             } else {
-                triggerBrowserNotification('انتهت الاستراحة! ⏰', 'جاهز للجلسة التالية؟ اضغط لبدء الدراسة بتركيز.');
+                triggerBrowserNotification(
+                    isAr ? 'انتهت الاستراحة! ⏰' : 'Break ended! ⏰', 
+                    isAr ? 'جاهز للجلسة التالية؟ اضغط لبدء الدراسة بتركيز.' : 'Ready for the next session? Click to start studying.'
+                );
                 setTimerMode('work');
             }
         }
@@ -419,11 +504,12 @@ function pauseTimer() {
         clearInterval(appState.timer.intervalId);
         appState.timer.intervalId = null;
     }
+    const isAr = appState.language === 'ar';
     const icon = document.getElementById('pomo-icon');
     icon.className = 'fa-solid fa-play';
 
     const status = document.getElementById('timer-status-indicator');
-    status.innerText = 'متوقف مؤقتاً';
+    status.innerText = isAr ? 'متوقف مؤقتاً' : 'Paused';
     status.classList.add('paused');
 
     pauseAmbientSound();
@@ -437,24 +523,34 @@ function updateTimerDisplay() {
     document.getElementById('timer-display').innerText = `${formattedMin}:${formattedSec}`;
 }
 
+// دالة مساعدة للنصوص ثنائية اللغة لتقليل التكرار
+function langSpan(ar, en) {
+    const current = appState.language === 'ar' ? ar : en;
+    return `<span class="lang-text" data-ar="${escapeHtml(ar)}" data-en="${escapeHtml(en)}">${current}</span>`;
+}
+
+// ==========================================
+// وظائف واجهة المهام
+// ==========================================
 function renderTasks() {
     const grid = document.getElementById('task-grid');
     const header = document.getElementById('current-subject-header');
     if (!grid) return;
 
     grid.innerHTML = '';
+    const isAr = appState.language === 'ar';
 
     if (appState.activeTab === 'all') {
         header.innerHTML = `
             <i class="fa-solid fa-list-check" style="color: var(--primary);"></i>
-            <span>الجدول العام لجميع المهام</span>
+            <span>${langSpan('الجدول العام لجميع المهام', 'General Schedule for All Tasks')}</span>
         `;
     } else {
         const currentSub = appState.subjects.find(s => s.id === appState.activeTab);
         if (currentSub) {
             header.innerHTML = `
                 <span class="subject-badge-dot" style="background-color: ${currentSub.color}; width: 16px; height: 16px;"></span>
-                <span>جدول مادة: ${escapeHtml(currentSub.name)}</span>
+                <span>${langSpan('جدول مادة:', 'Schedule for:')} ${escapeHtml(currentSub.name)}</span>
             `;
         }
     }
@@ -468,8 +564,8 @@ function renderTasks() {
         grid.innerHTML = `
             <div class="empty-state">
                 <i class="fa-solid fa-clipboard-list"></i>
-                <h3>لا توجد مهام حالياً</h3>
-                <p style="margin-top: 8px;">اضغط على "إضافة مهمة جديدة" للبدء في تنظيم جدولك الدراسي.</p>
+                <h3>${langSpan('لا توجد مهام حالياً', 'No tasks currently')}</h3>
+                <p style="margin-top: 8px;">${langSpan('اضغط على "إضافة مهمة جديدة" للبدء في تنظيم جدولك الدراسي.', 'Click "Add New Task" to start organizing your study schedule.')}</p>
             </div>
         `;
         return;
@@ -484,7 +580,7 @@ function renderTasks() {
         todaySection.innerHTML = `
             <h3 class="schedule-section-title">
                 <i class="fa-solid fa-calendar-day" style="color: var(--primary);"></i>
-                📌 مهام اليوم (${todayTasks.length})
+                📌 ${langSpan('مهام اليوم', 'Today\'s Tasks')} (${todayTasks.length})
             </h3>
         `;
         const todayGrid = document.createElement('div');
@@ -492,7 +588,7 @@ function renderTasks() {
         todayGrid.style.marginBottom = '30px';
 
         if (todayTasks.length === 0) {
-            todayGrid.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">لا توجد مهام مسجلة لتاريخ اليوم.</p>`;
+            todayGrid.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">${langSpan('لا توجد مهام مسجلة لتاريخ اليوم.', 'No tasks scheduled for today.')}</p>`;
         } else {
             todayTasks.forEach(t => todayGrid.appendChild(createTaskCardElement(t)));
         }
@@ -503,14 +599,14 @@ function renderTasks() {
         otherSection.innerHTML = `
             <h3 class="schedule-section-title">
                 <i class="fa-solid fa-calendar-days" style="color: var(--secondary);"></i>
-                📅 مهام باقي الأيام والقادمة (${otherTasks.length})
+                📅 ${langSpan('مهام باقي الأيام والقادمة', 'Upcoming & Other Tasks')} (${otherTasks.length})
             </h3>
         `;
         const otherGrid = document.createElement('div');
         otherGrid.className = 'task-grid';
 
         if (otherTasks.length === 0) {
-            otherGrid.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem;">لا توجد مهام للأيام الأخرى.</p>`;
+            otherGrid.innerHTML = `<p style="color: var(--text-muted); font-size: 0.9rem;">${langSpan('لا توجد مهام للأيام الأخرى.', 'No tasks for other days.')}</p>`;
         } else {
             otherTasks.forEach(t => otherGrid.appendChild(createTaskCardElement(t)));
         }
@@ -525,18 +621,19 @@ function renderTasks() {
 }
 
 function createTaskCardElement(task) {
-    const sub = appState.subjects.find(s => s.id === task.subjectId) || { name: 'مادة محذوفة', color: '#64748b' };
+    const isAr = appState.language === 'ar';
+    const sub = appState.subjects.find(s => s.id === task.subjectId) || { name: isAr ? 'مادة محذوفة' : 'Deleted Subject', color: '#64748b' };
     
     const card = document.createElement('div');
     card.className = `task-card ${task.completed ? 'completed' : ''}`;
 
     let ytButtonsHtml = '';
-    const linksList = task.ytLinks || (task.ytUrls ? task.ytUrls.map((u, i) => ({ title: `رابط الشرح ${i+1}`, url: u })) : []);
+    const linksList = task.ytLinks || (task.ytUrls ? task.ytUrls.map((u, i) => ({ title: isAr ? `رابط الشرح ${i+1}` : `Link ${i+1}`, url: u })) : []);
     
     if (linksList && linksList.length > 0) {
         linksList.forEach(item => {
             if (item.url) {
-                const linkTitle = item.title ? escapeHtml(item.title) : 'رابط الشرح';
+                const linkTitle = item.title ? escapeHtml(item.title) : (isAr ? 'رابط الشرح' : 'Tutorial Link');
                 ytButtonsHtml += `
                     <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="yt-btn">
                         <i class="fa-solid fa-link"></i> ${linkTitle}
@@ -548,13 +645,13 @@ function createTaskCardElement(task) {
 
     const noteBtnHtml = `
         <button class="note-btn" onclick="openNoteModal('${task.id}')">
-            <i class="fa-solid fa-pen-to-square"></i> الملاحظات ${task.note ? '✏️' : ''}
+            <i class="fa-solid fa-pen-to-square"></i> ${isAr ? 'الملاحظات' : 'Notes'} ${task.note ? '✏️' : ''}
         </button>
     `;
 
     card.innerHTML = `
         <div class="checkbox-wrapper">
-            <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" title="تحديد كـ مكتمل">
+            <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" title="${isAr ? 'تحديد كـ مكتمل' : 'Mark as completed'}">
         </div>
         <div class="task-content">
             <div class="task-header-info">
@@ -569,10 +666,10 @@ function createTaskCardElement(task) {
             </div>
         </div>
         <div class="card-top-actions">
-            <button class="edit-btn" onclick="openTaskModal('${task.id}')" title="تعديل المهمة">
+            <button class="edit-btn" onclick="openTaskModal('${task.id}')" title="${isAr ? 'تعديل المهمة' : 'Edit Task'}">
                 <i class="fa-solid fa-pen"></i>
             </button>
-            <button class="delete-task-btn" onclick="confirmDeleteTask('${task.id}')" title="حذف المهمة">
+            <button class="delete-task-btn" onclick="confirmDeleteTask('${task.id}')" title="${isAr ? 'حذف المهمة' : 'Delete Task'}">
                 <i class="fa-solid fa-trash-can"></i>
             </button>
         </div>
@@ -597,14 +694,15 @@ function renderYtInputs(links = []) {
 }
 
 function addYtInputRow(title = '', url = '') {
+    const isAr = appState.language === 'ar';
     const container = document.getElementById('yt-inputs-container');
     const row = document.createElement('div');
     row.className = 'yt-link-row';
     row.style.cssText = 'display: flex; gap: 8px; align-items: center;';
     row.innerHTML = `
-        <input type="text" class="modal-input task-yt-title-field" style="margin-bottom: 0; flex: 1;" placeholder="عنوان الفيديو (مثال: شرح الدرس)" value="${escapeHtml(title)}">
-        <input type="url" class="modal-input task-yt-url-field" style="margin-bottom: 0; flex: 2;" placeholder="رابط الفيديو (URL)" value="${escapeHtml(url)}">
-        <button type="button" class="btn-icon-sub delete-sub" onclick="this.parentElement.remove()" title="حذف الرابط" style="width: 36px; height: 36px; font-size: 1rem; flex-shrink: 0;">
+        <input type="text" class="modal-input task-yt-title-field" style="margin-bottom: 0; flex: 1;" placeholder="${isAr ? 'عنوان الفيديو (مثال: شرح الدرس)' : 'Video Title (e.g. Lesson 1)'}" value="${escapeHtml(title)}">
+        <input type="url" class="modal-input task-yt-url-field" style="margin-bottom: 0; flex: 2;" placeholder="${isAr ? 'رابط الفيديو (URL)' : 'Video URL'}" value="${escapeHtml(url)}">
+        <button type="button" class="btn-icon-sub delete-sub" onclick="this.parentElement.remove()" title="${isAr ? 'حذف الرابط' : 'Delete Link'}" style="width: 36px; height: 36px; font-size: 1rem; flex-shrink: 0;">
             <i class="fa-solid fa-trash-can"></i>
         </button>
     `;
@@ -612,6 +710,7 @@ function addYtInputRow(title = '', url = '') {
 }
 
 function openTaskModal(taskId = null) {
+    const isAr = appState.language === 'ar';
     appState.editingTaskId = taskId;
     
     const select = document.getElementById('task-subject-select');
@@ -631,7 +730,7 @@ function openTaskModal(taskId = null) {
     if (taskId) {
         const task = appState.tasks.find(t => t.id === taskId);
         if (task) {
-            modalTitle.innerText = 'تعديل المهمة';
+            modalTitle.innerText = isAr ? 'تعديل المهمة' : 'Edit Task';
             titleInput.value = task.title;
             descInput.value = task.desc || '';
             dateInput.value = task.date || '';
@@ -639,7 +738,7 @@ function openTaskModal(taskId = null) {
             renderYtInputs(task.ytLinks || (task.ytUrls ? task.ytUrls.map(u => ({ title: '', url: u })) : []));
         }
     } else {
-        modalTitle.innerText = 'إضافة مهمة جديدة';
+        modalTitle.innerText = isAr ? 'إضافة مهمة جديدة' : 'Add New Task';
         titleInput.value = '';
         descInput.value = '';
         dateInput.value = new Date().toISOString().split('T')[0];
@@ -656,6 +755,7 @@ function openTaskModal(taskId = null) {
 }
 
 function saveTask() {
+    const isAr = appState.language === 'ar';
     const titleInput = document.getElementById('task-title-input');
     const title = titleInput.value.trim();
     const subjectId = document.getElementById('task-subject-select').value;
@@ -671,7 +771,7 @@ function saveTask() {
         const tVal = titleInputs[index] ? titleInputs[index].value.trim() : '';
         if (uVal) {
             ytLinks.push({
-                title: tVal || `رابط الشرح ${ytLinks.length + 1}`,
+                title: tVal || (isAr ? `رابط الشرح ${ytLinks.length + 1}` : `Link ${ytLinks.length + 1}`),
                 url: uVal
             });
         }
@@ -712,13 +812,14 @@ function saveTask() {
 }
 
 function exportTasksCSV() {
+    const isAr = appState.language === 'ar';
     let csvContent = "\uFEFF";
-    csvContent += "المادة,عنوان المهمة,تاريخ الإنجاز,الحالة,الملاحظات,روابط الشروحات\n";
+    csvContent += isAr ? "المادة,عنوان المهمة,تاريخ الإنجاز,الحالة,الملاحظات,روابط الشروحات\n" : "Subject,Task Title,Date,Status,Notes,Links\n";
 
     appState.tasks.forEach(t => {
         const sub = appState.subjects.find(s => s.id === t.subjectId);
-        const subName = sub ? sub.name : 'غير محدد';
-        const status = t.completed ? 'مكتملة' : 'قيد الانتظار';
+        const subName = sub ? sub.name : (isAr ? 'غير محدد' : 'Undefined');
+        const status = t.completed ? (isAr ? 'مكتملة' : 'Completed') : (isAr ? 'قيد الانتظار' : 'Pending');
         const links = (t.ytLinks || []).map(l => `${l.title}: ${l.url}`).join(' | ');
 
         const row = [
@@ -741,6 +842,7 @@ function exportTasksCSV() {
 
 function exportTasksJSON() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+        language: appState.language,
         subjects: appState.subjects,
         tasks: appState.tasks
     }, null, 2));
@@ -751,6 +853,7 @@ function exportTasksJSON() {
 }
 
 function handleImportFile(event) {
+    const isAr = appState.language === 'ar';
     const file = event.target.files[0];
     if (!file) return;
 
@@ -773,25 +876,26 @@ function handleImportFile(event) {
                     renderSubjectsNav();
                     renderTasks();
                     closeModal('import-export-modal');
-                    alert('تم استيراد المهام بنجاح!');
+                    alert(isAr ? 'تم استيراد المهام بنجاح!' : 'Tasks imported successfully!');
                 }
             } else if (file.name.endsWith('.csv')) {
                 parseCSVAndImport(content);
             }
         } catch (err) {
             console.error("خطأ في قراءة الملف:", err);
-            alert("حدث خطأ أثناء قراءة الملف. يرجى التأكد من اختيار ملف صحيح.");
+            alert(isAr ? "حدث خطأ أثناء قراءة الملف. يرجى التأكد من اختيار ملف صحيح." : "Error reading file. Please make sure to select a valid file.");
         }
     };
     reader.readAsText(file, 'UTF-8');
 }
 
 function parseCSVAndImport(csvText) {
+    const isAr = appState.language === 'ar';
     const lines = csvText.split('\n');
     if (lines.length <= 1) return;
 
     let addedCount = 0;
-    const defaultSub = appState.subjects[0] || { id: 'default', name: 'عام' };
+    const defaultSub = appState.subjects[0] || { id: 'default', name: isAr ? 'عام' : 'General' };
 
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
@@ -802,7 +906,7 @@ function parseCSVAndImport(csvText) {
             const subName = cols[0];
             const taskTitle = cols[1];
             const taskDate = cols[2] || new Date().toISOString().split('T')[0];
-            const isDone = cols[3] === 'مكتملة';
+            const isDone = cols[3] === 'مكتملة' || cols[3] === 'Completed';
             const note = cols[4] || '';
 
             let matchedSub = appState.subjects.find(s => s.name === subName);
@@ -829,13 +933,14 @@ function parseCSVAndImport(csvText) {
     renderSubjectsNav();
     renderTasks();
     closeModal('import-export-modal');
-    alert(`تم استيراد (${addedCount}) مهمة بنجاح من ملف الإكسل!`);
+    alert(isAr ? `تم استيراد (${addedCount}) مهمة بنجاح من ملف الإكسل!` : `Successfully imported (${addedCount}) tasks from CSV file!`);
 }
 
 function renderSubjectsNav() {
     const menuContainer = document.getElementById('subjects-menu');
     if (!menuContainer) return;
     menuContainer.innerHTML = '';
+    const isAr = appState.language === 'ar';
 
     const allBtn = document.createElement('button');
     allBtn.className = `nav-btn ${appState.activeTab === 'all' ? 'active' : ''}`;
@@ -844,8 +949,8 @@ function renderSubjectsNav() {
 
     allBtn.innerHTML = `
         <span>
-            <i class="fa-solid fa-layer-group" style="margin-left: 8px; color: var(--primary);"></i>
-            جميع المهام
+            <i class="fa-solid fa-layer-group" style="${isAr ? 'margin-left' : 'margin-right'}: 8px; color: var(--primary);"></i>
+            ${langSpan('جميع المهام', 'All Tasks')}
         </span>
         <span style="font-size: 0.8rem; opacity: 0.8;">(${completedTotalCount}/${totalTasksCount})</span>
     `;
@@ -871,10 +976,10 @@ function renderSubjectsNav() {
             <div style="display: flex; align-items: center; gap: 6px;">
                 <span style="font-size: 0.78rem; opacity: 0.8;">(${subCompleted}/${subTasks.length})</span>
                 <div class="subject-actions">
-                    <button class="btn-icon-sub" onclick="event.stopPropagation(); openSubjectModal('${sub.id}')" title="تعديل المادة">
+                    <button class="btn-icon-sub" onclick="event.stopPropagation(); openSubjectModal('${sub.id}')" title="${isAr ? 'تعديل المادة' : 'Edit Subject'}">
                         <i class="fa-solid fa-pen"></i>
                     </button>
-                    <button class="btn-icon-sub delete-sub" onclick="event.stopPropagation(); confirmDeleteSubject('${sub.id}')" title="حذف المادة">
+                    <button class="btn-icon-sub delete-sub" onclick="event.stopPropagation(); confirmDeleteSubject('${sub.id}')" title="${isAr ? 'حذف المادة' : 'Delete Subject'}">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </div>
@@ -926,6 +1031,7 @@ function renderProgressStats() {
 }
 
 function openSubjectModal(subjectId = null) {
+    const isAr = appState.language === 'ar';
     appState.editingSubjectId = subjectId;
     const nameInput = document.getElementById('subject-name-input');
     const modalTitle = document.getElementById('subject-modal-title');
@@ -947,7 +1053,7 @@ function openSubjectModal(subjectId = null) {
     if (subjectId) {
         const sub = appState.subjects.find(s => s.id === subjectId);
         if (sub) {
-            modalTitle.innerText = 'تعديل المادة';
+            modalTitle.innerText = isAr ? 'تعديل المادة' : 'Edit Subject';
             nameInput.value = sub.name;
             appState.selectedColor = sub.color;
             document.querySelectorAll('.color-option').forEach(el => {
@@ -957,7 +1063,7 @@ function openSubjectModal(subjectId = null) {
             });
         }
     } else {
-        modalTitle.innerText = 'إضافة مادة جديدة';
+        modalTitle.innerText = isAr ? 'إضافة مادة جديدة' : 'Add New Subject';
         nameInput.value = '';
         appState.selectedColor = PRESET_COLORS[0];
     }
@@ -1007,18 +1113,19 @@ document.getElementById('confirm-action-btn')?.addEventListener('click', () => {
 });
 
 function confirmDeleteSubject(subjectId) {
+    const isAr = appState.language === 'ar';
     const sub = appState.subjects.find(s => s.id === subjectId);
     if (!sub) return;
     showConfirmModal(
-        'تأكيد حذف المادة',
-        `هل أنت متأكد من حذف مادة "${sub.name}"؟ سيؤدي ذلك أيضاً إلى حذف جميع المهام التابعة لها.`,
+        isAr ? 'تأكيد حذف المادة' : 'Confirm Delete Subject',
+        isAr ? `هل أنت متأكد من حذف مادة "${sub.name}"؟ سيؤدي ذلك أيضاً إلى حذف جميع المهام التابعة لها.` : `Are you sure you want to delete "${sub.name}"? This will also delete all associated tasks.`,
         () => deleteSubject(subjectId)
     );
 }
 
 function deleteSubject(subjectId) {
     appState.subjects = appState.subjects.filter(s => s.id !== subjectId);
-    appState.tasks = appState.tasks.filter(t => t.id !== subjectId);
+    appState.tasks = appState.tasks.filter(t => t.subjectId !== subjectId); // Fix bug: t.subjectId instead of t.id
     if (appState.activeTab === subjectId) {
         appState.activeTab = 'all';
     }
@@ -1041,11 +1148,12 @@ function toggleTaskComplete(taskId) {
 }
 
 function confirmDeleteTask(taskId) {
+    const isAr = appState.language === 'ar';
     const task = appState.tasks.find(t => t.id === taskId);
     if (!task) return;
     showConfirmModal(
-        'تأكيد حذف المهمة',
-        `هل أنت متأكد من حذف المهمة "${task.title}"؟`,
+        isAr ? 'تأكيد حذف المهمة' : 'Confirm Delete Task',
+        isAr ? `هل أنت متأكد من حذف المهمة "${task.title}"؟` : `Are you sure you want to delete the task "${task.title}"?`,
         () => deleteTask(taskId)
     );
 }
@@ -1058,10 +1166,11 @@ function deleteTask(taskId) {
 }
 
 function openNoteModal(taskId) {
+    const isAr = appState.language === 'ar';
     appState.editingNoteTaskId = taskId;
     const task = appState.tasks.find(t => t.id === taskId);
     if (task) {
-        document.getElementById('note-modal-title').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> ملاحظات: ${escapeHtml(task.title)}`;
+        document.getElementById('note-modal-title').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> ${isAr ? 'ملاحظات:' : 'Notes:'} ${escapeHtml(task.title)}`;
         document.getElementById('note-modal-textarea').value = task.note || '';
         openModal('note-modal');
     }
@@ -1091,8 +1200,6 @@ function escapeHtml(str) {
 
 window.onload = function() {
     loadState();
-    populateAudioSelects();
+    applyLanguage(); // يتم تطبيق اللغة فور تحميل الصفحة وتحديث النصوص
     setTimerMode('work');
-    renderSubjectsNav();
-    renderTasks();
 };

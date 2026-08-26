@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">مخيم الدراسة | منصة تنظيم وإدارة الدراسة والمهام</title>
+    
+    <!-- إضافة أيقونة المتصفح -->
+    <link rel="icon" type="image/png" href="./images/graduation-cap-solid.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body>
+
+    <!-- الشريط الجانبي -->
+    <aside class="sidebar">
+        <div class="logo-container">
+            <h1>
+                <i class="fa-solid fa-graduation-cap" style="color: var(--primary);"></i>
+                <span class="lang-text" data-ar="مخيم الدراسة" data-en="Study Camp">مخيم الدراسة</span>
+                <span class="logo-badge lang-text" data-ar="مجاناً" data-en="Free">مجاناً</span>
+            </h1>
+        </div>
+
+        <!-- مؤقت البومودورو -->
+        <div class="pomodoro-box">
+            <div class="timer-header">
+                <span class="timer-mode lang-text" id="timer-mode-label" data-ar="جلسة دراسة" data-en="Study Session">جلسة دراسة</span>
+                <span class="timer-status lang-text" id="timer-status-indicator" data-ar="جاهز" data-en="Ready">جاهز</span>
+            </div>
+            
+            <div class="timer-display-container">
+                <div class="timer-display" id="timer-display">25:00</div>
+                <button class="btn-pomo-toggle" id="pomo-toggle-btn" onclick="toggleTimer()" title="تشغيل / إيقاف">
+                    <i class="fa-solid fa-play" id="pomo-icon"></i>
+                </button>
+            </div>
+
+            <div class="timer-controls-modes">
+                <button class="btn-mode active lang-text" id="mode-work" onclick="setTimerMode('work')" data-ar="دراسة" data-en="Study">دراسة</button>
+                <button class="btn-mode lang-text" id="mode-break" onclick="setTimerMode('break')" data-ar="راحة" data-en="Break">راحة</button>
+            </div>
+
+            <div class="timer-settings">
+                <div class="setting-group">
+                    <label class="lang-text" data-ar="الدراسة:" data-en="Study:">الدراسة:</label>
+                    <input type="number" id="setting-work" class="setting-input" value="25" min="1" max="120" onchange="updateCustomTimerSettings()">
+                    <span class="lang-text" data-ar="د" data-en="m">د</span>
+                </div>
+                <div class="setting-group">
+                    <label class="lang-text" data-ar="الراحة:" data-en="Break:">الراحة:</label>
+                    <input type="number" id="setting-break" class="setting-input" value="5" min="1" max="60" onchange="updateCustomTimerSettings()">
+                    <span class="lang-text" data-ar="د" data-en="m">د</span>
+                </div>
+            </div>
+
+            <!-- إعدادات صوت الخلفية من المجلدات -->
+            <div class="audio-settings-box">
+
+                <!-- اختيار صوت الخلفية أثناء الدراسة (sounds/ambient/) -->
+                <div class="audio-setting-title" style="margin-top: 10px;">
+                    <i class="fa-solid fa-headphones"></i> <span class="lang-text" data-ar="صوت خلفية الدراسة:" data-en="Background Sound:">صوت خلفية الدراسة:</span>
+                </div>
+                <select id="ambient-sound-select" class="audio-select" onchange="updateAudioSettings()">
+                    <!-- سيتم ملؤها برمجياً -->
+                </select>
+
+                <!-- حقل الملف الخارجي أو الرابط لصوت الخلفية -->
+                <div id="ambient-custom-container" style="display: none;">
+                    <input type="file" id="ambient-file-input" class="audio-extra-input" accept="audio/*" onchange="handleAmbientFileUpload(event)">
+                    <input type="text" id="ambient-url-input" class="audio-extra-input lang-placeholder" placeholder="رابط مباشر أو اسم الملف (مثال: quran1.mp3)" data-placeholder-ar="رابط مباشر أو اسم الملف (مثال: quran1.mp3)" data-placeholder-en="Direct link or file name (e.g. quran1.mp3)" onchange="onCustomUrlInput()">
+                </div>
+
+                <!-- مستوى الصوت والامتحان -->
+                <div class="volume-control-row">
+                    <i class="fa-solid fa-volume-high"></i>
+                    <input type="range" id="ambient-volume-slider" class="volume-slider" min="0" max="100" value="50" oninput="updateAmbientVolume(this.value)">
+                    <button type="button" class="btn-mode lang-text" style="padding: 2px 6px; font-size: 0.72rem; flex: none;" onclick="testSelectedSounds()" data-ar="تجربة" data-en="Test">تجربة</button>
+                </div>
+
+                <!-- شريط تقدم الصوت وإمكانية التقديم والترجيع -->
+                <div id="ambient-player-controls" class="ambient-player-box" style="display: none;">
+                    <div class="ambient-time-info">
+                        <span id="ambient-time-current">00:00</span>
+                        <span class="lang-text" data-ar="شريط تقديم الصوت" data-en="Audio timeline">شريط تقديم الصوت</span>
+                        <span id="ambient-time-duration">00:00</span>
+                    </div>
+                    <input type="range" id="ambient-seek-bar" class="ambient-seek-bar" min="0" max="100" value="0" oninput="onAmbientSeekInput(this.value)">
+                    <div class="ambient-controls-btns">
+                        <button type="button" class="btn-seek" onclick="skipAmbientTime(-10)" title="ترجيع 10 ثوانٍ">
+                            <i class="fa-solid fa-rotate-left"></i> -10s
+                        </button>
+                        <button type="button" class="btn-seek" onclick="skipAmbientTime(10)" title="تقديم 10 ثوانٍ">
+                            +10s <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- قائمة المواد -->
+        <div>
+            <div class="subjects-section-header">
+                <span class="subjects-title">
+                    <i class="fa-solid fa-book-bookmark"></i> <span class="lang-text" data-ar="المواد الدراسية" data-en="Subjects">المواد الدراسية</span>
+                </span>
+                <button class="btn-add-subject" onclick="openSubjectModal()">
+                    <i class="fa-solid fa-plus"></i> <span class="lang-text" data-ar="مادة جديدة" data-en="New Subject">مادة جديدة</span>
+                </button>
+            </div>
+            <nav class="nav-menu" id="subjects-menu">
+                <!-- يتم توليد أزرار المواد ديناميكياً بواسطة JavaScript -->
+            </nav>
+        </div>
+
+        <!-- إحصائيات الإنجاز -->
+        <div class="stats-section">
+            <h3>
+                <span><i class="fa-solid fa-chart-pie"></i> <span class="lang-text" data-ar="نسبة الإنجاز" data-en="Completion Rate">نسبة الإنجاز</span></span>
+                <span id="total-completion-badge" style="color: var(--primary); font-weight:800;">0%</span>
+            </h3>
+            <div class="progress-list" id="progress-list-container">
+                <!-- شريط التقدم لكل مادة يُولد ديناميكياً -->
+            </div>
+        </div>
+    </aside>
+
+    <!-- المنطقة الرئيسية -->
+    <main>
+        <div class="subject-header-container">
+            <div class="subject-header" id="current-subject-header">
+                <i class="fa-solid fa-list-check" style="color: var(--primary);"></i>
+                <span class="lang-text" data-ar="الجدول العام لجميع المهام" data-en="General Schedule for All Tasks">الجدول العام لجميع المهام</span>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                
+                <!-- زر تغيير اللغة الجديد -->
+                <button class="btn-secondary" onclick="toggleLanguage()">
+                    <i class="fa-solid fa-globe"></i> <span id="lang-btn-text">English</span>
+                </button>
+
+                <button class="btn-secondary" onclick="openModal('import-export-modal')">
+                    <i class="fa-solid fa-file-export"></i> <span class="lang-text" data-ar="استيراد / تصدير" data-en="Import / Export">استيراد / تصدير</span>
+                </button>
+                <button class="add-task-header-btn" onclick="openTaskModal()">
+                    <i class="fa-solid fa-plus"></i> <span class="lang-text" data-ar="إضافة مهمة جديدة" data-en="Add New Task">إضافة مهمة جديدة</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- شبكة المهام -->
+        <div class="task-grid" id="task-grid">
+            <!-- كروت المهام تُولّد ديناميكياً -->
+        </div>
+
+        <footer class="app-footer">
+            <p><span class="lang-text" data-ar="جميع الحقوق محفوظة ©" data-en="All rights reserved ©">جميع الحقوق محفوظة ©</span> <a href="https://osmyt.github.io/" target="_blank" rel="noopener noreferrer">osmyt</a></p>
+        </footer>
+    </main>
+
+    <!-- 1. نافذة إضافة / تعديل مادة -->
+    <div class="modal-overlay" id="subject-modal">
+        <div class="modal-box">
+            <h3 id="subject-modal-title" class="lang-text" data-ar="إضافة مادة جديدة" data-en="Add New Subject">إضافة مادة جديدة</h3>
+            
+            <label class="form-label lang-text" data-ar="اسم المادة الدراسية" data-en="Subject Name">اسم المادة الدراسية</label>
+            <input type="text" id="subject-name-input" class="modal-input lang-placeholder" placeholder="مثال: الرياضيات، الأحياء..." data-placeholder-ar="مثال: الرياضيات، الأحياء..." data-placeholder-en="e.g. Mathematics, Biology..." autofocus>
+            
+            <label class="form-label lang-text" data-ar="لون تمييز المادة" data-en="Subject Highlight Color">لون تمييز المادة</label>
+            <div class="color-picker-grid" id="color-picker">
+                <!-- سيتم ملء الخيارات بالفانكشن -->
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary lang-text" onclick="closeModal('subject-modal')" data-ar="إلغاء" data-en="Cancel">إلغاء</button>
+                <button class="btn-primary" onclick="saveSubject()"><i class="fa-solid fa-check"></i> <span class="lang-text" data-ar="حفظ المادة" data-en="Save Subject">حفظ المادة</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. نافذة إضافة / تعديل مهمة -->
+    <div class="modal-overlay" id="task-modal">
+        <div class="modal-box">
+            <h3 id="task-modal-title" class="lang-text" data-ar="إضافة مهمة جديدة" data-en="Add New Task">إضافة مهمة جديدة</h3>
+            
+            <label class="form-label lang-text" data-ar="عنوان المهمة" data-en="Task Title">عنوان المهمة</label>
+            <input type="text" id="task-title-input" class="modal-input lang-placeholder" placeholder="مثال: حل مسائل الفصل الأول" data-placeholder-ar="مثال: حل مسائل الفصل الأول" data-placeholder-en="e.g. Solve Chapter 1 exercises">
+
+            <div class="flex-row">
+                <div>
+                    <label class="form-label lang-text" data-ar="المادة الدراسية" data-en="Subject">المادة الدراسية</label>
+                    <select id="task-subject-select" class="modal-select">
+                        <!-- خيارات المواد -->
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label lang-text" data-ar="تاريخ الإنجاز / التوقيت" data-en="Due Date / Time">تاريخ الإنجاز / التوقيت</label>
+                    <input type="date" id="task-date-input" class="modal-input">
+                </div>
+            </div>
+
+            <label class="form-label lang-text" data-ar="وصف تفصيلي أو توجيهات" data-en="Detailed Description">وصف تفصيلي أو توجيهات</label>
+            <textarea id="task-desc-input" class="modal-textarea lang-placeholder" style="min-height: 80px;" placeholder="تفاصيل إضافية للمهمة..." data-placeholder-ar="تفاصيل إضافية للمهمة..." data-placeholder-en="Additional details..."></textarea>
+
+            <label class="form-label lang-text" data-ar="روابط شروحات تعليمية (يمكن إضافة أكثر من رابط)" data-en="Tutorial Links (Multiple allowed)">روابط شروحات تعليمية (يمكن إضافة أكثر من رابط)</label>
+            <div id="yt-inputs-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
+                <!-- روابط تفاعلية تُضاف ديناميكياً -->
+            </div>
+            <button type="button" class="btn-add-subject" style="margin-bottom: 18px;" onclick="addYtInputRow()">
+                <i class="fa-solid fa-plus"></i> <span class="lang-text" data-ar="إضافة رابط شرح آخر" data-en="Add Another Link">إضافة رابط شرح آخر</span>
+            </button>
+
+            <div class="modal-actions">
+                <button class="btn-secondary lang-text" onclick="closeModal('task-modal')" data-ar="إلغاء" data-en="Cancel">إلغاء</button>
+                <button class="btn-primary" onclick="saveTask()"><i class="fa-solid fa-check"></i> <span class="lang-text" data-ar="حفظ المهمة" data-en="Save Task">حفظ المهمة</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. نافذة الملاحظات المكبرة (Full Screen Editor) -->
+    <div class="modal-overlay" id="note-modal">
+        <div class="modal-box large-modal">
+            <h3 id="note-modal-title"><i class="fa-solid fa-pen-to-square"></i> <span class="lang-text" data-ar="ملاحظات المهمة" data-en="Task Notes">ملاحظات المهمة</span></h3>
+            <textarea id="note-modal-textarea" class="modal-textarea lang-placeholder" placeholder="اكتب ملاحظاتك، ملخصاتك، أو أفكارك هنا..." data-placeholder-ar="اكتب ملاحظاتك، ملخصاتك، أو أفكارك هنا..." data-placeholder-en="Write your notes, summaries, or thoughts here..."></textarea>
+            <div class="modal-actions">
+                <button class="btn-secondary lang-text" onclick="closeModal('note-modal')" data-ar="إغلاق دون حفظ" data-en="Close Without Saving">إغلاق دون حفظ</button>
+                <button class="btn-primary" onclick="saveTaskNote()"><i class="fa-solid fa-floppy-disk"></i> <span class="lang-text" data-ar="حفظ الملاحظات" data-en="Save Notes">حفظ الملاحظات</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. نافذة تأكيد الحذف (Custom Confirmation Dialog) -->
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal-box" style="max-width: 420px; text-align: center;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 3rem; color: var(--danger); margin-bottom: 15px;"></i>
+            <h3 id="confirm-modal-title" class="lang-text" style="margin-bottom: 10px;" data-ar="تأكيد الحذف" data-en="Confirm Deletion">تأكيد الحذف</h3>
+            <p id="confirm-modal-msg" style="color: var(--text-muted); margin-bottom: 22px; font-size: 0.95rem;"></p>
+            <div class="modal-actions" style="justify-content: center;">
+                <button class="btn-secondary lang-text" onclick="closeModal('confirm-modal')" data-ar="إلغاء" data-en="Cancel">إلغاء</button>
+                <button class="btn-danger lang-text" id="confirm-action-btn" data-ar="نعم، قم بالحذف" data-en="Yes, Delete">نعم، قم بالحذف</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. نافذة استيراد وتصدير المهام (Excel / JSON) -->
+    <div class="modal-overlay" id="import-export-modal">
+        <div class="modal-box" style="max-width: 500px;">
+            <h3><i class="fa-solid fa-file-csv" style="color: var(--primary);"></i> <span class="lang-text" data-ar="استيراد وتصدير المهام" data-en="Import & Export Tasks">استيراد وتصدير المهام</span></h3>
+            
+            <p class="lang-text" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 18px; line-height: 1.6;" data-ar="يمكنك تصدير مهامك وجدولك الدراسي إلى ملف إكسل (CSV) أو ملف نسخة احتياطية (JSON)، أو استيراد مهام سابقة بسهولة." data-en="You can export your tasks and schedule to an Excel (CSV) or backup (JSON) file, or easily import previous tasks.">
+                يمكنك تصدير مهامك وجدولك الدراسي إلى ملف إكسل (CSV) أو ملف نسخة احتياطية (JSON)، أو استيراد مهام سابقة بسهولة.
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                <button class="btn-primary" onclick="exportTasksCSV()" style="justify-content: center;">
+                    <i class="fa-solid fa-file-excel"></i> <span class="lang-text" data-ar="تصدير المهام إلى ملف إكسل (CSV)" data-en="Export to Excel (CSV)">تصدير المهام إلى ملف إكسل (CSV)</span>
+                </button>
+                <button class="btn-secondary" onclick="exportTasksJSON()" style="justify-content: center; border-color: var(--primary); color: var(--primary);">
+                    <i class="fa-solid fa-download"></i> <span class="lang-text" data-ar="تصدير نسخة احتياطية كاملة (JSON)" data-en="Export Full Backup (JSON)">تصدير نسخة احتياطية كاملة (JSON)</span>
+                </button>
+            </div>
+
+            <hr style="border: none; border-top: 1px dashed var(--border); margin-bottom: 18px;">
+
+            <label class="form-label"><i class="fa-solid fa-upload"></i> <span class="lang-text" data-ar="استيراد مهام من ملف (JSON / CSV):" data-en="Import Tasks from file (JSON/CSV):">استيراد مهام من ملف (JSON / CSV):</span></label>
+            <input type="file" id="import-file-input" class="audio-extra-input" accept=".json,.csv" onchange="handleImportFile(event)">
+
+            <div class="modal-actions" style="margin-top: 15px;">
+                <button class="btn-secondary lang-text" onclick="closeModal('import-export-modal')" data-ar="إغلاق" data-en="Close">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. النافذة المنبثقة التحذيرية الخاصة بالموسيقى والصوتيات الخارجة -->
+    <div class="modal-overlay" id="music-warning-modal">
+        <div class="warning-modal-box">
+            <div style="text-align: center; color: var(--warning); margin-bottom: 12px; font-size: 2.5rem;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="lang-text" style="color: var(--warning); text-align: center; margin-bottom: 12px; font-size: 1.3rem;" data-ar="تنبيه شرعي مهم" data-en="Important Religious Warning">تنبيه شرعي مهم</h3>
+            <p class="lang-text" style="margin-bottom: 14px; font-size: 1rem; color: var(--text-main);" data-ar="الموسيقى حرام باجماع أهل العلم, نتمنى ان لا تختار سوى تسجيلات قران للقارئ الذي تحبه.<br /> نبرأ امام الله من ذنوبك اذا اخترت اصوات محرمة." data-en="Music is forbidden by scholarly consensus. We hope you only select Quran recitations of your favorite reciter.<br/> We disclaim any responsibility before Allah if you choose prohibited sounds.">
+                الموسيقى حرام باجماع أهل العلم, نتمنى ان لا تختار سوى تسجيلات قران للقارئ الذي تحبه.<br /> نبرأ امام الله من ذنوبك اذا اخترت اصوات محرمة.
+            </p>
+            <div style="background: rgba(15, 23, 42, 0.6); padding: 12px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 18px; font-size: 0.88rem;">
+                <div style="margin-bottom: 6px;">
+                    📌 <strong class="lang-text" data-ar="دلائل التحريم فتاوي العلماء:" data-en="Scholarly Fatwas on Prohibition:">دلائل التحريم فتاوي العلماء:</strong> 
+                    <a href="https://youtu.be/PO8I4oH7004" target="_blank" rel="noopener noreferrer">https://youtu.be/PO8I4oH7004</a>
+                </div>
+                <div>
+                    📌 <strong class="lang-text" data-ar="فتوى ابن باز:" data-en="Fatwa of Ibn Baz:">فتوى ابن باز:</strong> 
+                    <a class="lang-text" href="https://binbaz.org.sa/fatwas/17415/%D8%AD%D9%83%D9%85-%D8%A7%D9%84%D8%A7%D8%BA%D8%A7%D9%86%D9%8A-%D9%88%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%8A%D9%82%D9%89" target="_blank" rel="noopener noreferrer" data-ar="عرض الفتوى على موقع ابن باز" data-en="View Fatwa on Ibn Baz's Website">عرض الفتوى على موقع ابن باز</a>
+                </div>
+            </div>
+            <div class="modal-actions" style="justify-content: center;">
+                <button class="btn-primary lang-text" onclick="closeModal('music-warning-modal')" data-ar="أقسم بالله لن استمع لصوت حرام" data-en="I swear I will not listen to prohibited sounds">أقسم بالله لن استمع لصوت حرام</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="Script.js"></script>
+</body>
+</html>
