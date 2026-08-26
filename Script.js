@@ -59,7 +59,6 @@ let appState = {
         secondsLeft: 25 * 60,
         isRunning: false,
         intervalId: null,
-        alarmSoundType: 'sounds/alarm/alarm1.mp3',
         customAlarmUrl: '',
         ambientSoundType: 'none',
         ambientCustomUrl: '',
@@ -68,7 +67,7 @@ let appState = {
 };
 
 // عناصر التشغيل الصوتي
-var currentAlarmAudio = null;
+
 var currentAmbientAudio = null;
 var currentAmbientSrc = ''; 
 var completionAudio = null;
@@ -96,7 +95,6 @@ function loadState() {
             if (parsed.timerSettings) {
                 appState.timer.workMinutes = parsed.timerSettings.workMinutes || 25;
                 appState.timer.breakMinutes = parsed.timerSettings.breakMinutes || 5;
-                appState.timer.alarmSoundType = parsed.timerSettings.alarmSoundType || 'sounds/alarm/alarm1.mp3';
                 appState.timer.customAlarmUrl = parsed.timerSettings.customAlarmUrl || '';
                 appState.timer.ambientSoundType = parsed.timerSettings.ambientSoundType || 'none';
                 appState.timer.ambientCustomUrl = parsed.timerSettings.ambientCustomUrl || '';
@@ -116,8 +114,6 @@ function saveState() {
             timerSettings: {
                 workMinutes: appState.timer.workMinutes,
                 breakMinutes: appState.timer.breakMinutes,
-                alarmSoundType: appState.timer.alarmSoundType,
-                customAlarmUrl: appState.timer.customAlarmUrl,
                 ambientSoundType: appState.timer.ambientSoundType,
                 ambientCustomUrl: appState.timer.ambientCustomUrl,
                 ambientVolume: appState.timer.ambientVolume
@@ -130,7 +126,6 @@ function saveState() {
 }
 
 function populateAudioSelects() {
-    const alarmSelect = document.getElementById('alarm-sound-select');
     const ambientSelect = document.getElementById('ambient-sound-select');
 
     if (alarmSelect) {
@@ -145,7 +140,7 @@ function populateAudioSelects() {
     if (ambientSelect) {
         ambientSelect.innerHTML = '<option value="none">بدون صوت</option>';
         AMBIENT_FILES.forEach(item => {
-            ambientSelect.innerHTML += `<option value="sounds/ambient/${item.filename}">${item.name}</option>`;
+            ambientSelect.innerHTML += `<option value="./sounds/ambient/${item.filename}">${item.name}</option>`;
         });
         ambientSelect.innerHTML += '<option value="custom">ملف خاص / رابط خارجي...</option>';
         ambientSelect.value = appState.timer.ambientSoundType || 'none';
