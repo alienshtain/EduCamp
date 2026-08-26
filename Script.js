@@ -10,7 +10,6 @@ const PRESET_COLORS = [
     '#ef4444'  // أحمر
 ];
 
-
 const AMBIENT_FILES = [
     { name: 'المنشاوي سورة النجم', filename: 'المنشاوي_سورة_النجم.mp3' },
     { name: 'محمد ايوب سورة طه', filename: 'سورة_طه_محمد_ايوب.mp3' },
@@ -59,7 +58,6 @@ let appState = {
         secondsLeft: 25 * 60,
         isRunning: false,
         intervalId: null,
-        customAlarmUrl: '',
         ambientSoundType: 'none',
         ambientCustomUrl: '',
         ambientVolume: 50
@@ -67,7 +65,6 @@ let appState = {
 };
 
 // عناصر التشغيل الصوتي
-
 var currentAmbientAudio = null;
 var currentAmbientSrc = ''; 
 var completionAudio = null;
@@ -95,7 +92,6 @@ function loadState() {
             if (parsed.timerSettings) {
                 appState.timer.workMinutes = parsed.timerSettings.workMinutes || 25;
                 appState.timer.breakMinutes = parsed.timerSettings.breakMinutes || 5;
-                appState.timer.customAlarmUrl = parsed.timerSettings.customAlarmUrl || '';
                 appState.timer.ambientSoundType = parsed.timerSettings.ambientSoundType || 'none';
                 appState.timer.ambientCustomUrl = parsed.timerSettings.ambientCustomUrl || '';
                 appState.timer.ambientVolume = parsed.timerSettings.ambientVolume !== undefined ? parsed.timerSettings.ambientVolume : 50;
@@ -128,15 +124,6 @@ function saveState() {
 function populateAudioSelects() {
     const ambientSelect = document.getElementById('ambient-sound-select');
 
-    if (alarmSelect) {
-        alarmSelect.innerHTML = '<option value="none">بدون صوت</option>';
-        ALARM_FILES.forEach(item => {
-            alarmSelect.innerHTML += `<option value="sounds/alarm/${item.filename}">${item.name}</option>`;
-        });
-        alarmSelect.innerHTML += '<option value="custom">ملف خاص / رابط خارجي...</option>';
-        alarmSelect.value = appState.timer.alarmSoundType || 'sounds/alarm/alarm1.mp3';
-    }
-
     if (ambientSelect) {
         ambientSelect.innerHTML = '<option value="none">بدون صوت</option>';
         AMBIENT_FILES.forEach(item => {
@@ -146,17 +133,10 @@ function populateAudioSelects() {
         ambientSelect.value = appState.timer.ambientSoundType || 'none';
     }
 
-    const customAlarmContainer = document.getElementById('custom-alarm-container');
-    if (customAlarmContainer) {
-        customAlarmContainer.style.display = appState.timer.alarmSoundType === 'custom' ? 'block' : 'none';
-    }
     const ambientCustomContainer = document.getElementById('ambient-custom-container');
     if (ambientCustomContainer) {
         ambientCustomContainer.style.display = appState.timer.ambientSoundType === 'custom' ? 'block' : 'none';
     }
-
-    const alarmUrlInput = document.getElementById('alarm-url-input');
-    if (alarmUrlInput) alarmUrlInput.value = appState.timer.customAlarmUrl || '';
 
     const ambientUrlInput = document.getElementById('ambient-url-input');
     if (ambientUrlInput) ambientUrlInput.value = appState.timer.ambientCustomUrl || '';
@@ -189,37 +169,21 @@ function onCustomUrlInput() {
 }
 
 function updateAudioSettings() {
-    const newAlarm = document.getElementById('alarm-sound-select').value;
     const newAmbient = document.getElementById('ambient-sound-select').value;
 
-    if (newAlarm === 'custom' && appState.timer.alarmSoundType !== 'custom') {
-        showMusicWarningModal();
-    }
     if (newAmbient === 'custom' && appState.timer.ambientSoundType !== 'custom') {
         showMusicWarningModal();
     }
 
-    appState.timer.alarmSoundType = newAlarm;
     appState.timer.ambientSoundType = newAmbient;
     appState.timer.ambientCustomUrl = document.getElementById('ambient-url-input').value.trim();
-    appState.timer.customAlarmUrl = document.getElementById('alarm-url-input').value.trim();
 
-    document.getElementById('custom-alarm-container').style.display = appState.timer.alarmSoundType === 'custom' ? 'block' : 'none';
     document.getElementById('ambient-custom-container').style.display = appState.timer.ambientSoundType === 'custom' ? 'block' : 'none';
 
     saveState();
 
     if (appState.timer.isRunning) {
         startAmbientSound();
-    }
-}
-
-function handleAlarmFileUpload(event) {
-    showMusicWarningModal();
-    const file = event.target.files[0];
-    if (file) {
-        appState.timer.customAlarmUrl = URL.createObjectURL(file);
-        saveState();
     }
 }
 
@@ -256,7 +220,7 @@ function triggerBrowserNotification(title, body) {
         try {
             new Notification(title, {
                 body: body,
-                icon: 'https://cdn-icons-png.flaticon.com/512/2991/2991106.png',
+                icon: './images/graduation-cap-solid.png',
                 dir: 'rtl'
             });
         } catch (e) {
@@ -264,7 +228,6 @@ function triggerBrowserNotification(title, body) {
         }
     }
 }
-
 
 function startAmbientSound() {
     if (appState.timer.mode !== 'work' || !appState.timer.isRunning) return;
@@ -378,7 +341,6 @@ function playTaskCompletionSound() {
 }
 
 function testSelectedSounds() {
-    playTimerBeep();
     if (appState.timer.ambientSoundType !== 'none') {
         startAmbientSound();
         setTimeout(() => stopAmbientSound(true), 3000);
@@ -439,7 +401,6 @@ function startTimer() {
             updateTimerDisplay();
         } else {
             pauseTimer();
-            playTimerBeep();
 
             if (appState.timer.mode === 'work') {
                 triggerBrowserNotification('انتهت جلسة الدراسة! 🎉', 'أحسنت إنجاز هذه الجلسة. حان وقت أخذ استراحة مستحقة.');
@@ -1057,7 +1018,7 @@ function confirmDeleteSubject(subjectId) {
 
 function deleteSubject(subjectId) {
     appState.subjects = appState.subjects.filter(s => s.id !== subjectId);
-    appState.tasks = appState.tasks.filter(t => t.subjectId !== subjectId);
+    appState.tasks = appState.tasks.filter(t => t.id !== subjectId);
     if (appState.activeTab === subjectId) {
         appState.activeTab = 'all';
     }
