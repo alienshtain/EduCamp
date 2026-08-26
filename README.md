@@ -50,10 +50,10 @@
 
 | لقطة الشاشة | الوصف |
 | :--- | :--- |
-| `![الواجهة الرئيسية](./screenshots/dashboard.png)` | **الواجهة الرئيسية:** قائمة المهام اليومية والشريط الجانبي للمواد. |
-| `![مؤقت البومودورو](./screenshots/pomodoro.png)` | **مؤقت البومودورو:** شكل المؤقت ومشغل الصوتيات والقراء. |
-| `![تفاصيل المهمة](./screenshots/task-modal.png)` | **إضافة مهمة:** الخانات الخاصة بروابط الشروحات والملاحظات. |
-| `![نسب الإنجاز](./screenshots/progress.png)` | **الإحصائيات:** أشرطة تقدم المواد والنسبة الإجمالية. |
+| `![الواجهة الرئيسية](./images/screenshots/dashboard.png)` | **الواجهة الرئيسية:** قائمة المهام اليومية والشريط الجانبي للمواد. |
+| `![مؤقت البومودورو](./images/screenshots/pomodoro.png)` | **مؤقت البومودورو:** شكل المؤقت ومشغل الصوتيات والقراء. |
+| `![تفاصيل المهمة](./images/screenshots/task-modal.png)` | **إضافة مهمة:** الخانات الخاصة بروابط الشروحات والملاحظات. |
+| `![نسب الإنجاز](./images/screenshots/progress.png)` | **الإحصائيات:** أشرطة تقدم المواد والنسبة الإجمالية. |
 
 ---
 
@@ -103,10 +103,10 @@
 
 | Screenshot | Description |
 | :--- | :--- |
-| `![Main Dashboard](./screenshots/dashboard.png)` | **Main Dashboard:** Task list, daily breakdown, and subject navigation sidebar. |
-| `![Pomodoro Timer](./screenshots/pomodoro.png)` | **Pomodoro Timer:** Timer display and audio player options. |
-| `![Task Details](./screenshots/task-modal.png)` | **Task Modal:** Fields for adding YouTube links, deadlines, and notes. |
-| `![Progress Stats](./screenshots/progress.png)` | **Progress Statistics:** Subject completion bars and overall percentage. |
+| `![Main Dashboard](./images/screenshots/dashboardEN.png)` | **Main Dashboard:** Task list, daily breakdown, and subject navigation sidebar. |
+| `![Pomodoro Timer](./images/screenshots/pomodoroEN.png)` | **Pomodoro Timer:** Timer display and audio player options. |
+| `![Task Details](./images/screenshots/task-modalEN.png)` | **Task Modal:** Fields for adding YouTube links, deadlines, and notes. |
+| `![Progress Stats](./images/screenshots/progressEN.png)` | **Progress Statistics:** Subject completion bars and overall percentage. |
 
 ---
 
