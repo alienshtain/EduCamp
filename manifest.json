@@ -1,0 +1,24 @@
+{
+  "name": "EduCamp | مخيم التعليم",
+  "short_name": "EduCamp",
+  "description": "منصة متكاملة لمساعدة الطلاب والمستقلين على تنظيم جداولهم الدراسية، إدارة المهام، وزيادة التركيز باستخدام تقنية البومودورو.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "./images/graduation-cap-solid.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./images/graduation-cap-solid.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

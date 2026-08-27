@@ -4,26 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>EduCamp | منصة تنظيم الدراسة والإنتاجية</title>
+    <title id="page-title">EduCamp | منصة تنظيم الدراسة والإنتاجية</title>
     <meta name="description" content="منصة متكاملة لمساعدة الطلاب والمستقلين على تنظيم جداولهم الدراسية، إدارة المهام، وزيادة التركيز باستخدام تقنية البومودورو.">
-    <meta name="keywords" content="تنظيم دراسة, بومودورو, إدارة مهام, جدول دراسي, EduCamp, pompdoro, جدول دراسي">
+    <meta name="keywords" content="تنظيم دراسة, بومودورو, إدارة مهام, جدول دراسي, EduCamp, pomodoro, جدول دراسي, تقنية بومودورو, تطبيق دراسة">
+    <meta name="author" content="osmyt">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="theme-color" content="#3b82f6">
+
+    <!-- رمز تحقق ملكية الموقع على Google Search Console (استبدله برمزك الخاص بعد التسجيل) -->
+    <meta name="google-site-verification" content="REPLACE_WITH_YOUR_GOOGLE_SEARCH_CONSOLE_CODE">
 
     <link rel="canonical" href="https://osmyt.github.io/EduCamp/">
-    
+
+    <!-- إشارات اللغة البديلة (الموقع ثنائي اللغة عربي / إنجليزي) -->
+    <link rel="alternate" hreflang="ar" href="https://osmyt.github.io/EduCamp/">
+    <link rel="alternate" hreflang="en" href="https://osmyt.github.io/EduCamp/">
+    <link rel="alternate" hreflang="x-default" href="https://osmyt.github.io/EduCamp/">
+
     <!-- إعدادات بطاقات المشاركة (Open Graph) -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://osmyt.github.io/EduCamp/">
     <meta property="og:title" content="EduCamp | منصة تنظيم الدراسة والإنتاجية">
     <meta property="og:description" content="منصة متكاملة لمساعدة الطلاب والمستقلين على تنظيم جداولهم الدراسية، إدارة المهام، وزيادة التركيز.">
     <meta property="og:image" content="https://osmyt.github.io/EduCamp/images/screenshots/dashboard.png">
+    <meta property="og:locale" content="ar_AR">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:site_name" content="EduCamp">
+
+    <!-- بطاقة تويتر (X) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="EduCamp | منصة تنظيم الدراسة والإنتاجية">
+    <meta name="twitter:description" content="منصة متكاملة لمساعدة الطلاب والمستقلين على تنظيم جداولهم الدراسية، إدارة المهام، وزيادة التركيز.">
+    <meta name="twitter:image" content="https://osmyt.github.io/EduCamp/images/screenshots/dashboard.png">
 
     <!-- إضافة أيقونة المتصفح -->
     <link rel="icon" type="image/png" href="./images/graduation-cap-solid.png">
+    <link rel="apple-touch-icon" href="./images/graduation-cap-solid.png">
+    <link rel="manifest" href="./manifest.json">
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="Style.css">
+
+    <!-- بيانات منظمة (Structured Data) لمحركات البحث -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "EduCamp",
+        "alternateName": "مخيم التعليم",
+        "url": "https://osmyt.github.io/EduCamp/",
+        "description": "منصة متكاملة لمساعدة الطلاب والمستقلين على تنظيم جداولهم الدراسية، إدارة المهام، وزيادة التركيز باستخدام تقنية البومودورو.",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Any",
+        "inLanguage": ["ar", "en"],
+        "isAccessibleForFree": true,
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "author": {
+            "@type": "Person",
+            "name": "osmyt",
+            "url": "https://osmyt.github.io/"
+        }
+    }
+    </script>
 </head>
 <body>
 
@@ -286,7 +334,48 @@
         </div>
     </div>
 
-    <!-- 6. النافذة المنبثقة التحذيرية الخاصة بالموسيقى والصوتيات الخارجة -->
+    <!-- 6. نافذة طلب الأذونات (إشعارات + تشغيل الصوت في الخلفية) -->
+    <div class="modal-overlay" id="permission-modal">
+        <div class="modal-box permission-modal-box" style="max-width: 460px; text-align: center;">
+            <div style="font-size: 2.5rem; color: var(--primary); margin-bottom: 10px;">
+                <i class="fa-solid fa-bell"></i>
+            </div>
+            <h3 class="lang-text" data-ar="لتجربة أفضل" data-en="For a Better Experience" style="margin-bottom: 10px;">لتجربة أفضل</h3>
+            <p class="lang-text" style="color: var(--text-muted); margin-bottom: 22px; font-size: 0.95rem; line-height: 1.7;" data-ar="يحتاج التطبيق لإذنك لتنبيهك عند انتهاء المؤقت، وللسماح بتشغيل صوت الخلفية أثناء جلسات الدراسة." data-en="The app needs your permission to notify you when the timer ends, and to allow background sound playback during study sessions.">يحتاج التطبيق لإذنك لتنبيهك عند انتهاء المؤقت، وللسماح بتشغيل صوت الخلفية أثناء جلسات الدراسة.</p>
+
+            <div class="permission-item">
+                <div class="permission-item-info">
+                    <i class="fa-solid fa-bell" style="color: var(--primary);"></i>
+                    <div>
+                        <strong class="lang-text" data-ar="إشعارات انتهاء المؤقت" data-en="Timer End Notifications">إشعارات انتهاء المؤقت</strong>
+                        <p class="lang-text" data-ar="تنبيه فوري عند انتهاء وقت الدراسة أو الراحة." data-en="An instant alert when study or break time ends.">تنبيه فوري عند انتهاء وقت الدراسة أو الراحة.</p>
+                    </div>
+                </div>
+                <button class="btn-primary" id="btn-allow-notifications" onclick="handleAllowNotifications()">
+                    <i class="fa-solid fa-check"></i> <span class="lang-text" data-ar="سماح" data-en="Allow">سماح</span>
+                </button>
+            </div>
+
+            <div class="permission-item">
+                <div class="permission-item-info">
+                    <i class="fa-solid fa-music" style="color: var(--primary);"></i>
+                    <div>
+                        <strong class="lang-text" data-ar="تشغيل الصوت في الخلفية" data-en="Background Audio Playback">تشغيل الصوت في الخلفية</strong>
+                        <p class="lang-text" data-ar="السماح بتشغيل صوت الخلفية تلقائياً أثناء جلسة الدراسة." data-en="Allow background sound to play automatically during your study session.">السماح بتشغيل صوت الخلفية تلقائياً أثناء جلسة الدراسة.</p>
+                    </div>
+                </div>
+                <button class="btn-primary" id="btn-allow-audio" onclick="handleAllowAudio()">
+                    <i class="fa-solid fa-check"></i> <span class="lang-text" data-ar="سماح" data-en="Allow">سماح</span>
+                </button>
+            </div>
+
+            <div class="modal-actions" style="justify-content: center; margin-top: 18px;">
+                <button class="btn-secondary lang-text" onclick="dismissPermissionModal()" data-ar="لاحقاً" data-en="Maybe Later">لاحقاً</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. النافذة المنبثقة التحذيرية الخاصة بالموسيقى والصوتيات الخارجة -->
     <div class="modal-overlay" id="music-warning-modal">
         <div class="warning-modal-box">
             <div style="text-align: center; color: var(--warning); margin-bottom: 12px; font-size: 2.5rem;">

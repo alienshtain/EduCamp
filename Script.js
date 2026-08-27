@@ -15,6 +15,7 @@ const AMBIENT_FILES = [
     { name: 'محمد ايوب سورة طه', filename: 'سورة_طه_محمد_ايوب.mp3' },
     { name: 'احمد كاسب سورة غافر', filename: 'سورة_غافر_احمد_كاسب.mp3' },
     { name: 'تلاوات من قناة "لتطمئن"', filename: 'تلاوات_من_قناة_لتطمئن.mp3' },
+    { name: 'المنشاوي سورة التوبة', filename: 'سورة_التوبة_المنشاوي.mp3' }
 ];
 
 // الحالة العامة للتطبيق
@@ -61,6 +62,11 @@ let appState = {
         ambientSoundType: 'none',
         ambientCustomUrl: '',
         ambientVolume: 50
+    },
+    permissions: {
+        notifications: 'default', // 'default' | 'granted' | 'denied'
+        audio: 'default',         // 'default' | 'granted'
+        promptDismissed: false
     }
 };
 
@@ -164,6 +170,11 @@ function loadState() {
                 appState.timer.ambientCustomUrl = parsed.timerSettings.ambientCustomUrl || '';
                 appState.timer.ambientVolume = parsed.timerSettings.ambientVolume !== undefined ? parsed.timerSettings.ambientVolume : 50;
             }
+
+            if (parsed.permissions) {
+                appState.permissions.audio = parsed.permissions.audio || 'default';
+                appState.permissions.promptDismissed = !!parsed.permissions.promptDismissed;
+            }
         }
     } catch (e) {
         console.error("خطأ في التحميل من LocalStorage", e);
@@ -182,6 +193,10 @@ function saveState() {
                 ambientSoundType: appState.timer.ambientSoundType,
                 ambientCustomUrl: appState.timer.ambientCustomUrl,
                 ambientVolume: appState.timer.ambientVolume
+            },
+            permissions: {
+                audio: appState.permissions.audio,
+                promptDismissed: appState.permissions.promptDismissed
             }
         };
         localStorage.setItem('educamp_state_v2', JSON.stringify(dataToSave));
@@ -282,10 +297,108 @@ function updateAmbientVolume(val) {
     }
 }
 
-function requestNotificationPermission() {
-    if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission();
+// ==========================================
+// إدارة الأذونات (إشعارات + صوت الخلفية)
+// ==========================================
+
+// يتحقق مما إذا كان ينبغي إظهار نافذة طلب الأذونات للمستخدم
+function maybeShowPermissionModal() {
+    // مزامنة حالة إذن الإشعارات الفعلية من المتصفح
+    if ('Notification' in window) {
+        appState.permissions.notifications = Notification.permission; // 'default' | 'granted' | 'denied'
+    } else {
+        appState.permissions.notifications = 'denied';
     }
+
+    const needsNotifPrompt = appState.permissions.notifications === 'default';
+    const needsAudioPrompt = appState.permissions.audio !== 'granted';
+
+    if (!appState.permissions.promptDismissed && (needsNotifPrompt || needsAudioPrompt)) {
+        updatePermissionModalUI();
+        openModal('permission-modal');
+    }
+}
+
+function updatePermissionModalUI() {
+    const isAr = appState.language === 'ar';
+    const notifBtn = document.getElementById('btn-allow-notifications');
+    const audioBtn = document.getElementById('btn-allow-audio');
+
+    if (notifBtn) {
+        if (appState.permissions.notifications === 'granted') {
+            notifBtn.className = 'btn-primary granted';
+            notifBtn.innerHTML = `<i class="fa-solid fa-check-double"></i> ${isAr ? 'مفعّل' : 'Enabled'}`;
+        } else if (appState.permissions.notifications === 'denied') {
+            notifBtn.className = 'btn-primary denied';
+            notifBtn.innerHTML = `<i class="fa-solid fa-ban"></i> ${isAr ? 'محظور من المتصفح' : 'Blocked by Browser'}`;
+        } else {
+            notifBtn.className = 'btn-primary';
+            notifBtn.innerHTML = `<i class="fa-solid fa-check"></i> ${isAr ? 'سماح' : 'Allow'}`;
+        }
+    }
+
+    if (audioBtn) {
+        if (appState.permissions.audio === 'granted') {
+            audioBtn.className = 'btn-primary granted';
+            audioBtn.innerHTML = `<i class="fa-solid fa-check-double"></i> ${isAr ? 'مفعّل' : 'Enabled'}`;
+        } else {
+            audioBtn.className = 'btn-primary';
+            audioBtn.innerHTML = `<i class="fa-solid fa-check"></i> ${isAr ? 'سماح' : 'Allow'}`;
+        }
+    }
+}
+
+// طلب صريح لإذن إرسال الإشعارات عند انتهاء المؤقت
+function handleAllowNotifications() {
+    if (!('Notification' in window)) {
+        appState.permissions.notifications = 'denied';
+        updatePermissionModalUI();
+        return;
+    }
+    Notification.requestPermission().then(result => {
+        appState.permissions.notifications = result; // 'granted' | 'denied' | 'default'
+        updatePermissionModalUI();
+        checkClosePermissionModal();
+    });
+}
+
+// طلب صريح لإذن تشغيل الصوت في الخلفية (يفتح قفل التشغيل التلقائي عبر لمسة/نقرة المستخدم)
+function handleAllowAudio() {
+    try {
+        const unlockAudio = new Audio();
+        unlockAudio.volume = 0;
+        // نغمة صامتة قصيرة جداً (WAV) لفتح صلاحية التشغيل التلقائي للمتصفح بإيماءة المستخدم
+        unlockAudio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+        const playPromise = unlockAudio.play();
+        if (playPromise) {
+            playPromise.then(() => unlockAudio.pause()).catch(() => {});
+        }
+    } catch (e) {
+        console.log("تعذر فتح قفل الصوت التلقائي:", e);
+    }
+
+    appState.permissions.audio = 'granted';
+    saveState();
+    updatePermissionModalUI();
+    checkClosePermissionModal();
+
+    // إذا كان المؤقت يعمل بالفعل ولديه صوت خلفية مختار، شغّله الآن
+    if (appState.timer.isRunning) {
+        startAmbientSound();
+    }
+}
+
+function checkClosePermissionModal() {
+    if (appState.permissions.notifications !== 'default' && appState.permissions.audio === 'granted') {
+        setTimeout(() => closeModal('permission-modal'), 500);
+    }
+}
+
+// عند إغلاق النافذة يدوياً (زر "لاحقاً" أو النقر خارجها) لا نزعجه بها مرة أخرى في نفس الجلسة المتصفح إلا بعد إعادة التحميل التالية إن لم تُمنح الأذونات
+function dismissPermissionModal() {
+    appState.permissions.promptDismissed = true;
+    saveState();
+    closeModal('permission-modal');
 }
 
 function triggerBrowserNotification(title, body) {
@@ -308,6 +421,14 @@ function startAmbientSound() {
     const soundType = appState.timer.ambientSoundType;
     if (soundType === 'none') {
         stopAmbientSound(true);
+        return;
+    }
+
+    // لا نشغّل صوت الخلفية تلقائياً قبل أن يمنح المستخدم إذن التشغيل صراحةً
+    if (appState.permissions.audio !== 'granted') {
+        appState.permissions.promptDismissed = false;
+        updatePermissionModalUI();
+        openModal('permission-modal');
         return;
     }
 
@@ -459,7 +580,12 @@ function toggleTimer() {
 
 function startTimer() {
     if (appState.timer.isRunning) return;
-    requestNotificationPermission();
+
+    // إذا لم يُمنح الإذن بعد لأي من الإشعارات أو صوت الخلفية، اطلبه الآن بشكل صريح
+    if (('Notification' in window && Notification.permission === 'default') || appState.permissions.audio !== 'granted') {
+        appState.permissions.promptDismissed = false;
+        maybeShowPermissionModal();
+    }
 
     appState.timer.isRunning = true;
     const isAr = appState.language === 'ar';
@@ -1201,4 +1327,5 @@ window.onload = function() {
     loadState();
     applyLanguage(); // يتم تطبيق اللغة فور تحميل الصفحة وتحديث النصوص
     setTimerMode('work');
+    maybeShowPermissionModal(); // اطلب أذونات الإشعارات وصوت الخلفية عند فتح التطبيق
 };

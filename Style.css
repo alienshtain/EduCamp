@@ -782,6 +782,32 @@ main {
     opacity: 0.4;
 }
 
+.permission-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    text-align: right;
+    background: rgba(59, 130, 246, 0.06);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+}
+.permission-item-info { display: flex; align-items: center; gap: 12px; }
+.permission-item-info i { font-size: 1.4rem; flex-shrink: 0; }
+.permission-item-info strong { display: block; color: var(--text-main); font-size: 0.92rem; margin-bottom: 3px; }
+.permission-item-info p { color: var(--text-muted); font-size: 0.8rem; margin: 0; line-height: 1.5; }
+.permission-item button { flex-shrink: 0; padding: 7px 14px; font-size: 0.85rem; }
+.permission-item button.granted { background-color: #10b981; cursor: default; }
+.permission-item button.granted:hover { background-color: #10b981; }
+.permission-item button.denied { background-color: var(--danger); }
+.permission-item button.denied:hover { background-color: #dc2626; }
+@media (max-width: 480px) {
+    .permission-item { flex-direction: column; align-items: stretch; text-align: center; }
+    .permission-item-info { flex-direction: column; }
+}
+
 .warning-modal-box {
     background-color: var(--bg-card);
     border: 2px solid var(--warning);

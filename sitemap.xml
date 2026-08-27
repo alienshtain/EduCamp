@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- رابط مشروع EduCamp -->
-  <url>
-    <loc>https://osmyt.github.io/EduCamp/</loc>
-    <lastmod>2026-08-27</lastmod>
-    <priority>1.0</priority>
-  </url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <url>
+        <loc>https://osmyt.github.io/EduCamp/</loc>
+        <xhtml:link rel="alternate" hreflang="ar" href="https://osmyt.github.io/EduCamp/" />
+        <xhtml:link rel="alternate" hreflang="en" href="https://osmyt.github.io/EduCamp/" />
+        <xhtml:link rel="alternate" hreflang="x-default" href="https://osmyt.github.io/EduCamp/" />
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
 </urlset>
