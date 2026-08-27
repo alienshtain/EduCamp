@@ -6,7 +6,7 @@
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen.svg)
 ![Languages](https://img.shields.io/badge/Languages-Arabic_%7C_English-blue.svg)
 
-[**🌐 جرب التطبيق الآن | Live Demo**](https://osmyt.github.io/EduCamp/)
+[**🌐 جرب التطبيق الآن | Live Demo**](https://alienshtain.github.io/EduCamp/)
 
 [الوصف بالعربية](#arabic) | [English Description](#english)
 
@@ -58,7 +58,7 @@
 ---
 
 ### 🔗 التواصل والمطور
-* **الموقع الشخصي والروابط:** [osmyt.github.io](https://osmyt.github.io/)
+* **الموقع الشخصي والروابط:** [alienshtain.github.io](https://alienshtain.github.io/)
 
 ---
 
@@ -111,7 +111,7 @@
 ---
 
 ### 🔗 Connect & Developer
-* **Personal Website & Links:** [osmyt.github.io](https://osmyt.github.io/)
+* **Personal Website & Links:** [alienshtain.github.io](https://alienshtain.github.io/)
 
 ---
 
