@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://osmyt.github.io/EduCamp/sitemap.xml
+Sitemap: https://alienshtain.github.io/EduCamp/sitemap.xml
